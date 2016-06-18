@@ -174,6 +174,29 @@
   (is (= (reformat-string "(foo\n)\n\n(bar)")
          "(foo)\n\n(bar)")))
 
+(deftest test-align-associative
+  (testing "binding aignment"
+    (is (= (reformat-string "(let [foo 1\n barbaz 2])")
+           "(let [foo    1\n      barbaz 2])"))
+    (is (= (reformat-string "(let [foo 1\n barbaz 2 qux 3])")
+           "(let [foo    1\n      barbaz 2\n      qux    3])")))
+  (testing "map alignment"
+    (is (= (reformat-string "{:foo 1\n:barbaz 2}")
+           "{:foo    1\n :barbaz 2}"))
+    (is (= (reformat-string "{:foo\n  1\n:baz 2}")
+           "{:foo 1\n :baz 2}"))
+    (is (= (reformat-string "{:bar\n {:qux 1\n  :quux 2}}")
+           "{:bar {:qux  1\n       :quux 2}}"))
+    (is (= (reformat-string "{:foo 1\n (baz quux) 2}")
+           "{:foo       1\n (baz quux) 2}"))
+    (is (= (reformat-string "{:foo (bar)\n :quux (baz)}")
+           "{:foo  (bar)\n :quux (baz)}")))
+    ;(testing "align preserves comments"
+    ;(is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2}")
+    ;       "{:foo    1 ;; test 1\n :barbaz 2}")))
+    ;
+  )
+
 (deftest test-trailing-whitespace
   (testing "trailing-whitespace"
     (is (= (reformat-string "(foo bar) ")
@@ -201,6 +224,8 @@
          "(  foo  )"))
   (is (= (reformat-string "(foo(bar))" {:insert-missing-whitespace? false})
          "(foo(bar))"))
+  (is (= (reformat-string "{:foo 1\n:barbaz 2}" {:align-associative? false})
+         "{:foo 1\n :barbaz 2}"))
   (is (= (reformat-string "(foo\nbar)" {:indents '{foo [[:block 0]]}})
          "(foo\n  bar)"))
   (is (= (reformat-string "(do\nfoo\nbar)" {:indents {}})
