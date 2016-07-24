@@ -305,7 +305,7 @@
       zloc
       (zip/insert-right zloc (n/newlines 1))))
 
-(defn map-odd-seq
+(defn- map-odd-seq
   "Applies f to all oddly-indexed nodes."
   [f zloc]
   (loop [loc (z/down zloc)
@@ -342,7 +342,7 @@
         (meta loc))
       loc)))
 
-(defn remove-right
+(defn- remove-right
   "Remove right sibling of the current node (if there is one)."
   [loc]
   (update-in-path loc :r next))
@@ -379,12 +379,6 @@
   (if (z/map? zloc)
       (-> zloc align-map add-map-newlines)
       (-> zloc align-binding add-binding-newlines)))
-
-;(def builtin-binding-keywords
-;  #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop" "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars" "with-redefs"})
-;
-;(def binding-keywords
-;  (merge (:binding-keywords opts) builtin-binding-keywords))
 
 (def binding-keywords
   #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop" "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars" "with-redefs"})
