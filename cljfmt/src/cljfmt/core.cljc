@@ -381,7 +381,9 @@
       (-> zloc align-binding add-binding-newlines)))
 
 (def binding-keywords
-  #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop" "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars" "with-redefs"})
+  #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop"
+    "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars"
+    "with-redefs"})
 
 (defn- binding? [zloc]
   (and (z/vector? zloc)
