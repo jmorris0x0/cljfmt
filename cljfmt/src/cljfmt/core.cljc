@@ -98,12 +98,6 @@
         (recur (zip/next zloc) (inc lines))
         (recur (zip/next zloc) lines)))))
 
-; Try using these more:
-; zwhitespace?
-; comment?
-; whitespace-or-comment?
-; skip-whitespace
-
 (defn- multiline? [zloc]
   (> (count-form-lines zloc) 1))
 
@@ -305,19 +299,9 @@
 (defn remove-trailing-whitespace [form]
   (transform form edit-all trailing-whitespace? zip/remove))
 
-(defn- *line-break-next? [zloc]
-  (or (zlinebreak? (zip/right zloc)) (final? zloc)))
-;(defn- *line-break-next? [zloc]
-;  (-> zloc zip/next skip-whitespace line-break?))
-
-;TODO: this skip whitespace thing might have something to do
-;with my comments problem.
-;
-;Fix error. use assertion?
-
 (defn- append-newline-if-absent [zloc]
-  (if (or (*line-break-next? zloc)                          ;;change this?
-          (z/rightmost? zloc))                              ;; needed?
+  (if (or (-> zloc zip/right skip-whitespace line-break?)
+          (z/rightmost? zloc))
       zloc
       (zip/insert-right zloc (n/newlines 1))))
 
@@ -374,48 +358,27 @@
         zloc)
       zloc)))
 
-;(defn- remove-right-whitespace
-;  [zloc]
-;  (loop [zloc zloc]
-;    (if (-> zloc zip/right whitespace?)
-;      delete to the right and return the original form)
-;    zloc)
-;  )
-
-;(z/remove )
-;For testing:
-;(-> (z/of-string "{:foo (hello)\n :bar buz}") z/down z/right zip/right z/root-string)
-
 (defn- align-seq-value [zloc max-length]
   (let [key-length (-> zloc z/sexpr str count)
         width      (- max-length key-length)
-        zloc       (*remove-right-while zloc zwhitespace?)
-        ;zloc       (u/remove-right-while zloc zwhitespace?)
-        ] ;; This is where the action is.
+        zloc       (*remove-right-while zloc zwhitespace?)]
     (zip/insert-right zloc (whitespace (inc width)))))
 
 (defn- align-map [zloc]
   (let [key-list       (-> zloc z/sexpr keys)
         max-key-length (apply max (map #(-> % str count) key-list))]
-    (println "In align-map\n")
     (map-odd-seq #(align-seq-value % max-key-length) zloc)))
 
 (defn- align-binding [zloc]
   (let [vec-sexpr    (z/sexpr zloc)
         odd-elements (take-nth 2 vec-sexpr)
         max-length   (apply max (map #(-> % str count) odd-elements))]
-    (println "In align-binding\n")
     (map-odd-seq #(align-seq-value % max-length) zloc)))
 
 (defn- align-elements [zloc]
   (if (z/map? zloc)
       (-> zloc align-map add-map-newlines)
       (-> zloc align-binding add-binding-newlines)))
-
-;(defn- align-elements [zloc]
-;  (if (z/map? zloc)
-;      (-> zloc align-map)
-;      (-> zloc align-binding)))
 
 ;(def builtin-binding-keywords
 ;  #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop" "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars" "with-redefs"})
@@ -443,30 +406,9 @@
   (and (z/map? zloc)
        (multiline? zloc)))
 
-;(defn align-map?
-;  "remove"
-;  [zloc]
-;  (let [is-map       (z/map? zloc)
-;        is-multiline (multiline? zloc)
-;        lines        (count-form-lines zloc)]
-;    (println "Is map?" is-map)
-;    (println "Is multi-line?" is-multiline)
-;    (println "count lines:" lines)
-;    (and is-map is-multiline)))
-
 (defn- should-align-elements? [zloc]
   (or (align-binding? zloc)
       (align-map? zloc)))
-
-;(defn- should-align-elements? [zloc]
-;  "remove"
-;  (let [align-b?  (align-binding? zloc)
-;        align-m?  (align-map? zloc)
-;        align?    (or align-b? align-m?)]
-;    (println "Should align binding?" (str align-b?))
-;    (println "Should align map?" (str align-m?))
-;    (println (str align?))
-;    align?))
 
 (defn align-collection-elements [form]
   (transform form edit-all should-align-elements? align-elements))

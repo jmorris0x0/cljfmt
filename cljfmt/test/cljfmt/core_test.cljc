@@ -180,9 +180,11 @@
            "(let [foo    1\n      barbaz 2])"))
     (is (= (reformat-string "(let [foo 1\n barbaz 2 qux 3])")
            "(let [foo    1\n      barbaz 2\n      qux    3])")))
-  (testing "align binding preserves comments"
+
+  (testing "binding alignment preserves comments"
     (is (= (reformat-string "(let [foo 1 ;; test 1\n barbaz 2])")
        "(let [foo    1 ;; test 1\n      barbaz 2])")))
+
   (testing "map alignment"
     (is (= (reformat-string "{:foo 1\n:barbaz 2}")
            "{:foo    1\n :barbaz 2}"))
@@ -194,13 +196,12 @@
            "{:foo       1\n (baz quux) 2}"))
     (is (= (reformat-string "{:foo (bar)\n :quux (baz)}")
            "{:foo  (bar)\n :quux (baz)}")))
-  (testing "align map preserves comments"
+
+  (testing "map alignment preserves comments"
     (is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2}")
            "{:foo    1 ;; test 1\n :barbaz 2}"))
     (is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2\n:fuz 1}")
-           "{:foo    1 ;; test 1\n :barbaz 2\n :fuz    1}")))
-
-  )
+           "{:foo    1 ;; test 1\n :barbaz 2\n :fuz    1}"))))
 
 (deftest test-trailing-whitespace
   (testing "trailing-whitespace"
