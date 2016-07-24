@@ -402,9 +402,15 @@
        (multiline? zloc)
        (-> zloc z/sexpr count (> 2))))
 
+(defn- empty-seq? [zloc]
+  (if (z/map? zloc)
+      (-> zloc z/sexpr empty?)
+      false))
+
 (defn- align-map? [zloc]
   (and (z/map? zloc)
-       (multiline? zloc)))
+       (multiline? zloc)
+       (not (empty-seq? zloc))))
 
 (defn- should-align-elements? [zloc]
   (or (align-binding? zloc)

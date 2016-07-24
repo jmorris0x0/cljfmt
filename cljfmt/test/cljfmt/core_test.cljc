@@ -221,7 +221,7 @@
            "( foo bar )\n"))
     (is (= (reformat-string
             "( foo bar )   \n( foo baz )\n" {:remove-surrounding-whitespace? false})
-           "( foo bar )\n( foo baz )\n"))))
+            "( foo bar )\n( foo baz )\n"))))
 
 (deftest test-options
   (is (= (reformat-string "(foo)\n\n\n(bar)" {:remove-consecutive-blank-lines? false})
