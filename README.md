@@ -99,7 +99,7 @@ selectively enabled or disabled:
   convert `(foo)\n\n\n(bar)` to `(foo)\n\n(bar)`. Defaults to true.
 
 * `:align-associative?` -
-  true if cljfmt should left align the values of multiline maps and
+  true if cljfmt should left align the values of multi-line maps and
   binding special forms (let, loop, binding). This will convert 
   `{:foo 1\n:barbaz 2}` to `{:foo    1\n :barbaz 2}`
   and `(let [foo 1\n barbaz 2])` to `(let [foo    1\n      barbaz 2])`.
