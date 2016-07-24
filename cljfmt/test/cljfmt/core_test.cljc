@@ -1,6 +1,6 @@
 (ns cljfmt.core-test
   (:require [#?@(:clj (clojure.test :refer)
-                 :cljs (cljs.test :refer-macros)) [deftest testing is]]
+                 :cljs (cljs.test :refer-macros)) [deftest testing is run-tests]]
             [cljfmt.core :refer [reformat-string]]))
 
 (deftest test-indent
@@ -175,11 +175,14 @@
          "(foo)\n\n(bar)")))
 
 (deftest test-align-associative
-  (testing "binding aignment"
+  (testing "binding alignment"
     (is (= (reformat-string "(let [foo 1\n barbaz 2])")
            "(let [foo    1\n      barbaz 2])"))
     (is (= (reformat-string "(let [foo 1\n barbaz 2 qux 3])")
            "(let [foo    1\n      barbaz 2\n      qux    3])")))
+  (testing "align binding preserves comments"
+    (is (= (reformat-string "(let [foo 1 ;; test 1\n barbaz 2])")
+       "(let [foo    1 ;; test 1\n      barbaz 2])")))
   (testing "map alignment"
     (is (= (reformat-string "{:foo 1\n:barbaz 2}")
            "{:foo    1\n :barbaz 2}"))
@@ -191,10 +194,12 @@
            "{:foo       1\n (baz quux) 2}"))
     (is (= (reformat-string "{:foo (bar)\n :quux (baz)}")
            "{:foo  (bar)\n :quux (baz)}")))
-    ;(testing "align preserves comments"
-    ;(is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2}")
-    ;       "{:foo    1 ;; test 1\n :barbaz 2}")))
-    ;
+  (testing "align map preserves comments"
+    (is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2}")
+           "{:foo    1 ;; test 1\n :barbaz 2}"))
+    (is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2\n:fuz 1}")
+           "{:foo    1 ;; test 1\n :barbaz 2\n :fuz    1}")))
+
   )
 
 (deftest test-trailing-whitespace
