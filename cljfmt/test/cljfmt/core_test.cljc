@@ -195,7 +195,9 @@
     (is (= (reformat-string "{:foo 1\n (baz quux) 2}")
            "{:foo       1\n (baz quux) 2}"))
     (is (= (reformat-string "{:foo (bar)\n :quux (baz)}")
-           "{:foo  (bar)\n :quux (baz)}")))
+           "{:foo  (bar)\n :quux (baz)}"))
+    (is (= (reformat-string "[{:foo 1 :bar 2}\n{:foo 1 :bar 2}]")
+           "[{:foo 1 :bar 2}\n {:foo 1 :bar 2}]")))
 
   (testing "map alignment preserves comments"
     (is (= (reformat-string "{:foo 1 ;; test 1\n:barbaz 2}")

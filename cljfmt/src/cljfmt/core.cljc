@@ -91,12 +91,13 @@
   (> (count-newlines zloc) 2))
 
 (defn- count-form-lines [zloc]
-  (loop [zloc zloc, lines 1]
-    (if (-> zloc zip/next zip/end?)
-      lines
-      (if (line-break? zloc)
-        (recur (zip/next zloc) (inc lines))
-        (recur (zip/next zloc) lines)))))
+  (let [zloc (-> zloc z/string z/of-string)]
+    (loop [zloc zloc, lines 1]
+      (if (-> zloc zip/next z/end?)
+          lines
+          (if (line-break? zloc)
+              (recur (zip/next zloc) (inc lines))
+              (recur (zip/next zloc) lines))))))
 
 (defn- multiline? [zloc]
   (> (count-form-lines zloc) 1))
@@ -343,13 +344,10 @@
       loc)))
 
 (defn- remove-right
-  "Remove right sibling of the current node (if there is one)."
   [loc]
   (update-in-path loc :r next))
 
 (defn- *remove-right-while
-  "Remove elements to the right of the current zipper location as long as
-   the given predicate matches."
   [zloc p?]
   (loop [zloc zloc]
     (if-let [rloc (zip/right zloc)]
@@ -380,10 +378,13 @@
       (-> zloc align-map add-map-newlines)
       (-> zloc align-binding add-binding-newlines)))
 
-(def binding-keywords
-  #{"doseq" "dorun" "doall" "let" "loop" "binding" "with-open" "go-loop"
-    "when-let" "when-some" "if-let" "if-some" "for" "with-local-vars"
+(def ^:private binding-keywords
+  #{"doseq" "let" "loop" "binding" "with-open" "go-loop"
+    "if-let" "when-some" "if-some" "for" "with-local-vars"
     "with-redefs"})
+
+;doseq, for
+;:let :while :when
 
 (defn- binding? [zloc]
   (and (z/vector? zloc)
@@ -395,7 +396,7 @@
 
 (defn- align-binding? [zloc]
   (and (binding? zloc)
-       (multiline? zloc)
+       ;(multiline? zloc)
        (-> zloc z/sexpr count (> 2))))
 
 (defn- empty-seq? [zloc]
@@ -405,8 +406,22 @@
 
 (defn- align-map? [zloc]
   (and (z/map? zloc)
-       (multiline? zloc)
+       ;(multiline? zloc)
        (not (empty-seq? zloc))))
+
+;(defn- align-map? [zloc]
+;  (let [form-string  (-> zloc z/string)
+;        is-map       (z/map? zloc)
+;        is-multiline (multiline? zloc)
+;        total-lines  (count-form-lines zloc)]
+;    (println "Form: " form-string)
+;    (println "Is map?: " (str is-map))
+;    (println "Is multi-line: " is-multiline)
+;    (println "Total lines: " total-lines))
+;  (and (z/map? zloc)
+;       (multiline? zloc)
+;       (not (empty-seq? zloc))))
+
 
 (defn- should-align-elements? [zloc]
   (or (align-binding? zloc)
